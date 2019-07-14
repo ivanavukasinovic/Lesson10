@@ -16,8 +16,10 @@ class EncryptorTest {
 		assertEquals("ccc", Encryptor.encrypt("aaa"));
 		assertEquals("Lcxc", Encryptor.encrypt("Java"));
 	}
-	
-	// Exercise: decrypt this sentence: Nkxg"nqpi"cpf"rtqurgt#
-	
-	
+
+	@Test
+	void testDecrypt() throws Exception {
+		assertEquals("Live long and prosper!", Encryptor.decrypt("Nkxg\"nqpi\"cpf\"rtqurgt#"));
+		assertEquals("Java", Encryptor.decrypt("Lcxc"));
+	}
 }
