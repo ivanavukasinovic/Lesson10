@@ -4,6 +4,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 
 import javax.sound.sampled.AudioInputStream;
@@ -11,7 +13,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import examples.FileHelper;
 
 public class Hangman extends KeyAdapter {
 
@@ -19,6 +24,8 @@ public class Hangman extends KeyAdapter {
 	ArrayList<JLabel> boxes = new ArrayList<JLabel>();
 	int lives = 9;
 	JLabel livesLabel = new JLabel("" + lives);
+	StringBuffer buffer = new StringBuffer();
+	List<String> words = new ArrayList<String>();
 
 	public static void main(String[] args) {
 		Hangman hangman = new Hangman();
@@ -26,10 +33,19 @@ public class Hangman extends KeyAdapter {
 		hangman.createUI();
 	}
 
+	public List<String> loadWords() {
+		return FileHelper.loadFileContentsIntoArrayList("resource/words.txt");
+	}
+
 	private void addPuzzles() {
-		puzzles.push("defenestrate");
-		puzzles.push("fancypants");
-		puzzles.push("elements");
+		words = loadWords();
+		for (int i = 0; i < words.size(); i++) {
+			puzzles.push(words.get(i));
+		}
+		/*
+		 * puzzles.push("defenestrate"); puzzles.push("fancypants");
+		 * puzzles.push("elements");
+		 */
 	}
 
 	JPanel panel = new JPanel();
@@ -51,7 +67,9 @@ public class Hangman extends KeyAdapter {
 		removeBoxes();
 		lives = 9;
 		livesLabel.setText("" + lives);
-		puzzle = puzzles.pop();
+		Random random = new Random();
+		int randomNum = random.nextInt(puzzles.size());
+		puzzle = puzzles.get(randomNum);
 		System.out.println("puzzle is now " + puzzle);
 		createBoxes();
 	}
@@ -59,9 +77,24 @@ public class Hangman extends KeyAdapter {
 	public void keyTyped(KeyEvent arg0) {
 		System.out.println(arg0.getKeyChar());
 		updateBoxesWithUserInput(arg0.getKeyChar());
+		if (isCorrect()) {
+			int reply = JOptionPane.showConfirmDialog(null, "You won! Do you want to try again?", "",
+					JOptionPane.YES_NO_OPTION);
+			if (reply == JOptionPane.YES_OPTION) {
+				loadNextPuzzle();
+			} else {
+				System.exit(0);
+			}
+		}
 		if (lives == 0) {
 			playDeathKnell();
-			loadNextPuzzle();
+			int reply = JOptionPane.showConfirmDialog(null, "You lose! Do you want to try again?", "",
+					JOptionPane.YES_NO_OPTION);
+			if (reply == JOptionPane.YES_OPTION) {
+				loadNextPuzzle();
+			} else {
+				System.exit(0);
+			}
 		}
 	}
 
@@ -75,6 +108,17 @@ public class Hangman extends KeyAdapter {
 		}
 		if (!gotOne)
 			livesLabel.setText("" + --lives);
+	}
+
+	public boolean isCorrect() {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < puzzle.length(); i++) {
+			buffer.append(boxes.get(i).getText());
+			if (buffer.toString().equals(puzzle)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void createBoxes() {
@@ -91,7 +135,7 @@ public class Hangman extends KeyAdapter {
 		}
 		boxes.clear();
 	}
-	
+
 	public void playDeathKnell() {
 		try {
 			AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("resource/funeral-march.wav"));
@@ -105,7 +149,3 @@ public class Hangman extends KeyAdapter {
 	}
 
 }
-
-
-
-
