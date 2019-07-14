@@ -24,7 +24,6 @@ public class Hangman extends KeyAdapter {
 	ArrayList<JLabel> boxes = new ArrayList<JLabel>();
 	int lives = 9;
 	JLabel livesLabel = new JLabel("" + lives);
-	StringBuffer buffer = new StringBuffer();
 	List<String> words = new ArrayList<String>();
 
 	public static void main(String[] args) {
