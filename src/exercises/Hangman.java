@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -41,10 +43,11 @@ public class Hangman extends KeyAdapter {
 		for (int i = 0; i < words.size(); i++) {
 			puzzles.push(words.get(i));
 		}
-		/*
-		 * puzzles.push("defenestrate"); puzzles.push("fancypants");
-		 * puzzles.push("elements");
-		 */
+
+//		 puzzles.push("defenestrate"); 
+//		 puzzles.push("fancypants");
+//		 puzzles.push("elements");
+
 	}
 
 	JPanel panel = new JPanel();
@@ -69,8 +72,20 @@ public class Hangman extends KeyAdapter {
 		Random random = new Random();
 		int randomNum = random.nextInt(puzzles.size());
 		puzzle = puzzles.get(randomNum);
-		System.out.println("puzzle is now " + puzzle);
-		createBoxes();
+		String regex = "[$&+,:;=\\\\?@#|/'<>.^*()%!-]";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(puzzle);
+		try {
+			if (matcher.find()) {
+				throw new Exception("Special character found in puzzle: \"" + puzzle + "\"! Try a new puzzle!");
+			}
+			System.out.println("puzzle is now " + puzzle);
+			createBoxes();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			loadNextPuzzle();
+		}
+
 	}
 
 	public void keyTyped(KeyEvent arg0) {
